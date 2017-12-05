@@ -1,0 +1,78 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+// @codingStandardsIgnoreFile
+
+/**
+ * Category custom filter
+ */
+?>
+<div class="toolbar-sorter custom_filter ">
+    <?php
+    $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+    $eavConfig = $objectManager->get('\Magento\Eav\Model\Config');
+    $attribute = $eavConfig->getAttribute('catalog_product', 'gift_card');
+    $cardOptions = $attribute->getSource()->getAllOptions();
+    $attribute = $eavConfig->getAttribute('catalog_product', 'theme');
+    $themeOptions = $attribute->getSource()->getAllOptions(false);
+    $currencySymbol = $objectManager->get('Magento\Directory\Model\Currency');
+    $currencySymbol = $currencySymbol->getCurrencySymbol();
+    $card = $block->getRequest()->getParam('gift_card');
+    $theme = $block->getRequest()->getParam('theme');
+    $cardCount = is_array($cardOptions) ? count($cardOptions) : $cardOptions->getSize();
+    $themeCount = is_array($themeOptions) ? count($themeOptions) : $themeOptions->getSize();
+    $cardUrl = "";
+    $themeUrl = "";
+    $currentUrl = $this->getUrl('*/*/*', ['_current' => true, '_use_rewrite' => true]);
+    $curUrl = explode("?", $currentUrl);
+
+    if($card > 0){
+        $themeUrl = $curUrl[0]."?gift_card=".$card."&theme=";
+    } else {
+        $themeUrl = $curUrl[0]."?theme=";
+    }
+
+    if($theme > 0){
+        $cardUrl = $curUrl[0]."?theme=".$theme."&gift_card=";
+    } else {
+        $cardUrl =  $curUrl[0]."?gift_card=";
+    }
+    ?>
+    <div class="block filter">
+            <div class="content">
+                <select class="sorter-options sorter-options-card" name="card" onchange="cardSelect(this.value)">
+                    <option value="">Filter by Value from $25-$3,000</option>
+                    <?php foreach ($cardOptions as $option): ?>
+                        <?php if ($option['label'] != ' ' || $option['label'] != 0) { ?>
+                            <option class="item" value="<?php echo $option['value'] ?>"
+                                    <?php if ($option['value'] == $card) { ?> selected="selected" <?php } ?> >
+                                        <?php echo $currencySymbol . number_format($option['label'], 2) ?>
+                            </option>
+                        <?php } ?>
+                    <?php endforeach; ?>
+                </select>    
+            </div>
+            <div class="content">  
+                <select  class="sorter-options sorter-options-theme" onchange="themeSelect(this.value)">
+                    <option value="">Filter by Theme</option>
+                    <?php foreach ($themeOptions as $option): ?>
+                        <option value="<?php echo $option['value']; ?>"
+                                <?php if ($option['value'] == $theme) { ?> selected="selected" <?php } ?> >
+                                    <?php echo $option['label']; ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+    </div>
+
+</div>
+<script type="text/javascript">
+    function themeSelect(abc){
+        window.location.href="<?php echo $themeUrl; ?>"+abc;
+    }
+    function cardSelect(abc){
+        window.location.href="<?php echo $cardUrl; ?>"+abc;
+    }
+</script>

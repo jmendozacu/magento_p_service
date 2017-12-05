@@ -1,0 +1,46 @@
+<?php
+/**
+ * Copyright © 2013-2017 Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+// @codingStandardsIgnoreFile
+
+if ($this->getRequest()->getFullActionName() == 'cms_index_index') { //Add this newsletter block on only home page
+
+?>
+<div class="section-banner gc-banner">
+    <div class="gc-max-width">
+        <div class="row justify-content-end">
+            <div class="col-md-6">
+                <div class="gc-card">
+                    <h2 class="h2">Want to skip the fees?</h2>
+                    <p class="gc-tagline">Join our mailing list to have the fees waived on your&nbsp;first&nbsp;purchase.</p>
+                    <p class="gc-body-text">Sign up to receive the latest news, promo codes and exciting offers from&nbsp;American&nbsp;Express.</p>
+                    <form class="form subscribe"
+                          novalidate
+                          action="<?php /* @escapeNotVerified */ echo $block->getFormActionUrl() ?>"
+                          method="post"
+                          data-mage-init='{"validation": {"errorClass": "mage-error"}}'
+                          id="newsletter-validate-detail">
+                        <div class="field newsletter">
+                            <label class="label" for="newsletter"><span><?php /* @escapeNotVerified */ echo __('Sign Up for Our Newsletter:') ?></span></label>
+                            <label class="label" for="newsletter"><span><?php /* @escapeNotVerified */ echo __('') ?></span></label>
+                            <div class="control">
+                                <input name="email" type="email" id="newsletter"
+                                       placeholder="<?php /* @escapeNotVerified */ echo __('Your email address') ?>"
+                                       data-validate="{required:true, 'validate-email':true}"/>
+                            </div>
+                        </div>
+                        <div class="actions">
+                            <button class="action subscribe primary btn" title="<?php /* @escapeNotVerified */ echo __('Register') ?>" type="submit">
+                                <span><?php /* @escapeNotVerified */ echo __('Register') ?></span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<?php } ?>

@@ -1,0 +1,61 @@
+<!--
+/**
+ * Inchoo_Stripe Template
+ *
+ * @category    Inchoo
+ * @package     Inchoo_Stripe
+ * @author      Ivan Weiler & Stjepan UdoviCiC
+ * @copyright   Inchoo (http://inchoo.net)
+ * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ */
+-->
+<div class="payment-method" data-bind="css: {'_active': (getCode() == isChecked())}">
+    <div class="payment-method-title field choice">
+        <input type="radio"
+               name="payment[method]"
+               class="radio"
+               data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
+        <label data-bind="attr: {'for': getCode()}" class="label"><span data-bind="text: getTitle()"></span></label>
+    </div>
+    <div class="payment-method-content">
+        <!-- ko foreach: getRegion('messages') -->
+        <!-- ko template: getTemplate() --><!-- /ko -->
+        <!--/ko-->
+        <div class="payment-method-billing-address">
+            <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->
+            <!-- ko template: getTemplate() --><!-- /ko -->
+            <!--/ko-->
+        </div>
+        <!--<link href="https://uatuta.incomm.com/static/css/shoppingcart.css" rel="stylesheet" type="text/css">-->
+        <!--<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>-->
+        <!--<script type="text/javascript" src="https://uatuta.incomm.com/static/js/shoppingcart.js"></script>-->
+		<div class="securepay">
+            <iframe onload="setTimeout( function(){ $('img.loading').hide();}, 2000 );" style="height: 550px; width: 80%" name="securepay" frameborder="0" scrolling="no" src="https://uatsecurepay.incomm.com/payment.aspx?tx_config=webportal&tx_transdataiv=dpg3dalWL6I%3D&tx_transdata=VomWf%2BehjYazLncEWYAf%2BQAniS74vv8FM0IjI1JGOELgjZ9g%2FhXNncx7XKFBGDyUj%2BwxVOaY9foYL0857iuJolKGdqsQ0Qz%2BVsdfUMMuLa0jMAqWhnPpWwBs31FFpe%2FsLz%2FLaZnkhg%2Br%2BfK63yyHOvJ0bkVuI4c20nZrSEzKgKFZJ4mg63o2zWqokMXQF9nKQIifph7mlggINT9tFldLWFEnVDWXWNM%2BvZADQyIlqJleaq0WxNx5OQASLbcT9npcH%2Fh8LRupGFTtpybijATdcQaEHGbfhwNXlSSi6wKX1qUUZ5OLMYVzwQrtgGQ4M%2BCPFxUvtmp3d8I3ip9Hc3m%2B5noT9s%2BytIO%2Fuzzp%2FUf8B0BRx7LogT21runSx%2BlxKVgdu5TZd%2Fu9J6q6n575eS84yJ4qVKEO3HcFvmV36ywalYeI4vDa6mG4LHyX8T0ccUitP1odqxaUzRoKGzoYXxfZsBT2wqUvXBGTSKzaKBvhnLY8soQ3otUuIzRs0KKh2%2FvK40zntVM4MinNGBPRiIg2%2F%2FiQmAkTTQfF9KU%2FEuNjwy%2Fs0y%2F107BSDZm7l%2FD42TCsICAqN6Lpxpey2RiKZ6rJICiYDWi0i86hBI68fUq2DSw1Y%2Bi9uTt1Pg%3D%3D" style="display: inline; height: 500px; width: 90%;"></iframe>
+		</div>
+
+        <!--<form class="form" data-bind="attr: {'id': getCode() + '-form'}">-->
+            <!--&lt;!&ndash; ko template: 'Magento_Payment/payment/cc-form' &ndash;&gt;&lt;!&ndash; /ko &ndash;&gt;-->
+        <!--</form>-->
+
+        <div class="checkout-agreements-block">
+            <!-- ko foreach: $parent.getRegion('before-place-order') -->
+            <!-- ko template: getTemplate() --><!-- /ko -->
+            <!--/ko-->
+        </div>
+        <div class="actions-toolbar">
+            <div class="primary">
+                <button class="action primary checkout"
+                        type="submit"
+                        data-bind="
+                        click: placeOrder,
+                        attr: {title: $t('Place Order')},
+                        css: {disabled: !isPlaceOrderActionAllowed()},
+                        enable: (getCode() == isChecked())
+                        "
+                        disabled>
+                    <span data-bind="text: $t('Place Order')"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

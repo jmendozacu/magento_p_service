@@ -1,0 +1,121 @@
+<?php
+/**
+ * Copyright © 2013-2017 Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+// @codingStandardsIgnoreFile
+
+/** @var $block \Magento\Checkout\Block\Cart\Sidebar */
+?>
+<?php
+//Admin configuration for the threshold popup
+$adminConfHelper = $this->helper('Prokarma\Adminconf\Helper\Data');
+$threshold = $adminConfHelper->getThresholdConfig('threshold/value');
+$thresholdQuantity = $adminConfHelper->getThresholdConfig('threshold/quantity');
+$thresholdMessage = $adminConfHelper->getThresholdConfig('threshold/message');
+$thresholdTitle = $adminConfHelper->getThresholdConfig('threshold/title') ;
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$quote = $objectManager->create("\Magento\Checkout\Model\Session")->getQuote();
+$cart = $objectManager->get('\Magento\Checkout\Model\Cart');
+$subTotal = $cart->getQuote()->getSubtotal();
+$grandTotal = $cart->getQuote()->getGrandTotal();
+$totalQuantity = $cart->getQuote()->getItemsQty();
+$flagThreshold = 1;
+if ($totalQuantity >= $thresholdQuantity && $grandTotal >= $threshold) {
+    $flagThreshold = 0;
+}
+$continueShoppingUrl = $adminConfHelper->getContinueShoppingLink("continue_redirect/redirectlink"); //Continue button link from admin configuration
+if (empty($continueShoppingUrl)) {
+    $continueShoppingUrl = $block->getCheckoutUrl();
+} else {
+    $block->setContinueShoppingUrl($continueShoppingUrl);
+}
+?>
+    <script>
+        var continueShoppingUrl = <?php /* @escapeNotVerified */ echo \Zend_Json::encode($block->getContinueShoppingUrl()); ?>;
+    </script>
+<div data-block="minicart" class="minicart-wrapper">
+    <a class="action showcart" href="<?php /* @escapeNotVerified */ echo $block->getShoppingCartUrl(); ?>"
+       data-bind="scope: 'minicart_content'">
+        <span class="text"><?php /* @escapeNotVerified */ echo __('My Cart'); ?></span>
+        <span class="counter qty empty"
+              data-bind="css: { empty: !!getCartParam('summary_count') == false }, blockLoader: isLoading">
+            <span class="counter-number"><!-- ko text: getCartParam('summary_count') --><!-- /ko --></span>
+            <span class="counter-label">
+            <!-- ko if: getCartParam('summary_count') -->
+                <!-- ko text: getCartParam('summary_count') --><!-- /ko -->
+                <!-- ko i18n: 'items' --><!-- /ko -->
+            <!-- /ko -->
+            </span>
+        </span>
+    </a>
+    <?php if ($block->getIsNeedToDisplaySideBar()): ?>
+        <div class="block block-minicart empty"
+             data-role="dropdownDialog"
+             data-mage-init='{"dropdownDialog":{
+                "appendTo":"[data-block=minicart]",
+                "triggerTarget":".showcart",
+                "timeout": "2000",
+                "closeOnMouseLeave": false,
+                "closeOnEscape": true,
+                "triggerClass":"active",
+                "parentClass":"active",
+                "buttons":[]}}'>
+            <div id="minicart-content-wrapper" data-bind="scope: 'minicart_content'">
+                <!-- ko template: getTemplate() --><!-- /ko -->
+            </div>
+            <?php echo $block->getChildHtml('minicart.addons'); ?>
+        </div>
+    <?php endif ?>
+    <script>
+        window.checkout = <?php /* @escapeNotVerified */ echo \Zend_Json::encode($block->getConfig()); ?>;
+    </script>
+    <script type="text/x-magento-init">
+    {
+        "[data-block='minicart']": {
+            "Magento_Ui/js/core/app": <?php /* @escapeNotVerified */ echo $block->getJsLayout();?>
+        },
+        "*": {
+            "Magento_Ui/js/block-loader": "<?php /* @escapeNotVerified */ echo $block->getViewFileUrl('images/loader-1.gif'); ?>"
+        }
+    }
+    </script>
+</div>
+<?php
+    if (!$flagThreshold){ ?>
+        <script type="text/javascript">
+		function bindMsg() {
+            require([
+                'jquery',
+                'jquery/ui',
+                "mage/mage",
+                'Magento_Ui/js/modal/modal'
+            ], function ($) {
+                $('<div />').html('<?php echo $thresholdMessage; ?>')
+                    .modal({
+                        title: '<?php echo $thresholdTitle; ?>',
+                        autoOpen: true,
+                        closed: function () {
+                            // $("#top-cart-btn-checkout").attr("disabled","disabled");
+                        },
+                        buttons: []
+                    });
+            });
+        }
+        </script>
+        <script type="text/javascript">
+            require([
+                "jquery",
+                "mage/mage"
+            ], function ($) {
+                $(document).ready(function () {
+                    $(".minicart-wrapper .showcart").click(function(){
+                        //onclick="bindMsg()" attr("disabled","disabled")
+                        $("#top-cart-btn-checkout").attr("onclick","bindMsg()").attr("id","top-cart-btn");
+
+                    });
+                });
+            });
+        </script>
+    <?php } ?>

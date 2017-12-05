@@ -1,0 +1,44 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+// @codingStandardsIgnoreFile
+?>
+<?php if($block->getQuote()->getItemsCount() > 0 ){ ?>
+    <div class="block discount" id="block-discount" data-mage-init='{"collapsible":{"openedState": "active", "saveState": true}}'>
+        <div >
+            <form id="discount-coupon-form"
+                  action="<?= /* @escapeNotVerified */ $block->getUrl('checkout/cart/couponPost') ?>"
+                  method="post"
+                  data-mage-init='{"discountCode":{"couponCodeSelector": "#coupon_code",
+                                               "removeCouponSelector": "#remove-coupon",
+                                               "applyButton": "button.action.apply",
+                                               "cancelButton": "button.action.cancel"}}'>
+                <div class="fieldset coupon<?= strlen($block->getCouponCode()) ? ' applied' : '' ?>">
+                    <input type="hidden" name="remove" id="remove-coupon" value="0" />
+                    <div class="field">
+                        <div class="control">
+                            <input type="text" class="input-text" id="coupon_code" name="coupon_code" value="<?= $block->escapeHtml($block->getCouponCode()) ?>" placeholder="<?= $block->escapeHtml(__('Enter Promo Code')) ?>" />
+
+                            <!-- Start : Button -->
+                            <?php if (!strlen($block->getCouponCode())): ?>
+
+                                <button class="action apply primary" type="button" value="<?= /* @escapeNotVerified */ __('Apply Discount') ?>">
+                                    <span><?= /* @escapeNotVerified */ __('Apply') ?></span>
+                                </button>
+
+                            <?php else: ?>
+
+                                <button  type="button" class="action cancel primary" value="<?= /* @escapeNotVerified */ __('Cancel Coupon') ?>"><span><?= /* @escapeNotVerified */ __('Cancel') ?></span></button>
+
+                            <?php endif; ?>
+
+                            <!-- End : Button -->
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+<?php } ?>

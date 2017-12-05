@@ -1,0 +1,329 @@
+<?php
+/**
+ * Copyright © 2013-2017 Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+// @codingStandardsIgnoreFile
+
+/**
+ * @var $block \Magento\Checkout\Block\Cart\Item\Renderer
+ * @var \Magento\Msrp\Helper\Data $helper */
+
+$_item = $block->getItem();
+$product = $_item->getProduct();
+$isVisibleProduct = $product->isVisibleInSiteVisibility();
+$helper = $this->helper('Magento\Msrp\Helper\Data');
+$canApplyMsrp = $helper->isShowBeforeOrderConfirm($product) && $helper->isMinimalPriceLessMsrp($product);
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$eavConfig = $objectManager->get('\Magento\Eav\Model\Config');
+$attribute = $eavConfig->getAttribute('catalog_product', 'gift_card');
+$gOptions = $attribute->getSource()->getAllOptions();
+$currency = $objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore()->getBaseCurrency()->getCurrencySymbol();
+$configProd = $objectManager->get('Magento\ConfigurableProduct\Model\Product\Type\Configurable');
+$childProducts = $configProd->getUsedProducts($product,null);
+if(count($childProducts)){
+    $i = 0;
+    foreach($childProducts as $childProduct) {
+        $availGiftOption[$i] = $childProduct->getAttributeText('gift_card');
+        $i++;
+    }
+}
+$pOption = $objectManager->create('\Magento\Catalog\Model\Product')->load($_item->getProductId())->getOptions();
+$options = $block->getOptionList();
+$countOption = 0;
+foreach ($options as $option) {
+    if ($option['label'] == 'Gift Card') {
+        continue;
+    }
+    $countOption++;
+}
+$i = 0;
+?>
+<tbody class="cart item">
+<tr class="item-info">
+    <td data-th="<?php echo $block->escapeHtml(__('Item')); ?>" class="col item">
+        <?php if ($block->hasProductUrl()):?>
+        <a href="<?php /* @escapeNotVerified */ echo $block->getProductUrl() ?>"
+           title="<?php echo $block->escapeHtml($block->getProductName()) ?>"
+           tabindex="-1"
+           class="product-item-photo">
+            <?php else:?>
+            <span class="product-item-photo">
+            <?php endif;?>
+            <?php echo $block->getImage($block->getProductForThumbnail(), 'cart_page_product_thumbnail')->toHtml(); ?>
+            <?php if ($block->hasProductUrl()):?>
+        </a>
+    <?php else: ?>
+        </span>
+    </td>
+    <?php endif; ?>
+    <td class="cart item">
+        <div class="product-item-details">
+            <strong class="product-item-name">
+                <?php if ($block->hasProductUrl()):?>
+                    <a href="<?php /* @escapeNotVerified */ echo $block->getProductUrl() ?>"><?php echo $block->escapeHtml($block->getProductName()) ?></a>
+                <?php else: ?>
+                    <?php echo $block->escapeHtml($block->getProductName()) ?>
+                <?php endif; ?>
+            </strong>
+            <?php if ($messages = $block->getMessages()): ?>
+                <?php foreach ($messages as $message): ?>
+                    <div class="cart item message <?php /* @escapeNotVerified */ echo $message['type'] ?>"><div><?php echo $block->escapeHtml($message['text']) ?></div></div>
+                <?php endforeach; ?>
+            <?php endif; ?>
+            <?php $addInfoBlock = $block->getProductAdditionalInformationBlock(); ?>
+            <?php if ($addInfoBlock): ?>
+                <?php echo $addInfoBlock->setItem($_item)->toHtml() ?>
+            <?php endif;?>
+        </div>
+    </td>
+    <td class="col <?php if($countOption == 0){ ?> custom <?php } ?>">
+        <?php if ($countOption > 0 && $_options = $block->getOptionList()){?>
+            <dl id="item-options-<?php echo $_item->getId(); ?>" class="item-options">
+                <?php foreach ($_options as $_option) : ?>
+                    <?php
+                    $_formattedOptionValue = $block->getFormatedOptionValue($_option);
+                    if($_option['label'] == 'Gift Card'){continue;}
+                    ?>
+                    <dt><?php echo $block->escapeHtml($_option['label']) ?></dt>
+                    <dd>
+                        <?php if (isset($_formattedOptionValue['full_view'])): ?>
+                            <?php  echo $_formattedOptionValue['full_view'] ?>
+                        <?php else: ?>
+                            <?php  echo $_formattedOptionValue['value'] ?>
+                        <?php endif; ?>
+                    </dd>
+                <?php endforeach; ?>
+            </dl>
+            <a href="javascript:void(0)" id="custlink-<?php echo $_item->getId(); ?>" onclick="showCustomize(<?php echo $_item->getId(); ?>)">Edit Customization</a>
+        <?php }elseif(count($pOption)>0){ ?>
+            <a href="javascript:void(0)" id="custlink-<?php echo $_item->getId(); ?>" onclick="showCustomize(<?php echo $_item->getId(); ?>)">Add Customization</a>
+        <?php } else {  echo "<span class='not_applicable'>N/A</span>"; }?>
+        <?php
+        $optionId = '';
+        $optionVal = '';
+        $optionalValue = '';
+        if (count($pOption)>0) { ?>
+            <dl id="custdiv-<?php echo $_item->getId(); ?>" class="customization_col" <?php if(count($options)){ ?> style="display:none" <?php } ?>>
+                <?php foreach($pOption as $pOp) {
+                    $type = trim($pOp['type']); ?>
+                    <?php foreach ($options as $op) {
+                        if($op['option_id'] == $pOp['option_id']) {
+                            $optionalValue = $op['value'];
+                            break;
+                        }
+                    } ?>
+                    <?php 
+						$optionId = $optionId . $pOp['option_id'];
+					?>
+                    <?php if ($type == 'field') { ?>
+                        <?php 
+							$optionVal = $optionVal . $optionalValue; 
+						?>
+						
+                        <!-- <dt><?php echo $block->escapeHtml($pOp['title']) ?></dt> -->
+                        <dd>
+                            <div class="control">
+                                <input type="text" id="option-<?php echo $_item->getId().'-'.$pOp['option_id']; ?>"
+                                name="option-<?php echo $pOp['option_id']; ?>" value="<?php echo $optionalValue;?>"
+                                onchange="updateOptVal(<?php echo $_item->getId(); ?>)"
+                                class="input-text product-custom-option"
+                                placeholder="<?php echo $block->escapeHtml($pOp['title']); ?>" />
+                            </div>
+                        </dd>
+                        <?php
+                    } elseif($type == 'drop_down') {
+                        $resource = $objectManager->get('Magento\Framework\App\ResourceConnection');
+                        $connection = $resource->getConnection();
+                        $tableName = $resource->getTableName('catalog_product_option_type_title');
+                        $catalogProductOptionTypeValue = $resource->getTableName('catalog_product_option_type_value');
+                        $optId = $pOp['option_id'];
+						// Select query added to fetch drop-down options for personal message
+                        $sql = 'SELECT * FROM ' . $tableName .
+                            ' INNER JOIN ' . $catalogProductOptionTypeValue .
+                            ' ON catalog_product_option_type_title.option_type_id = catalog_product_option_type_value.option_type_id
+                            AND catalog_product_option_type_value.option_id ="' . $optId . '"';
+                        $results = $connection->fetchAll($sql);
+                        ?>
+                        <dd>
+                            <div class="control">
+                                <select name="option-<?php echo $_item->getId().'-'.$pOp['option_id']; ?>"
+                                id="option-<?php echo $_item->getId() . '-' . $pOp['option_id']; ?>"
+                                class="product-custom-option admin__control-select"
+                                onchange="updateOptVal(<?php echo $_item->getId(); ?>)" >
+                                <option value="">-- Please Select --</option>
+                                <?php
+                                foreach ($results as $result) {
+                                    $resultTitle = $result['title'];
+                                    $option_type_id = $result['option_type_id'];
+                                    if ($optionalValue == $resultTitle) {
+                                        $optionVal = $optionVal . $option_type_id;
+                                    }
+                                    ?>
+                                    <option <?php echo ($optionalValue == $resultTitle) ? 'selected="selected" ' : ' '; ?>
+                                    value="<?php echo $option_type_id; ?>"><?php echo $resultTitle; ?></option>
+                                <?php } ?>
+                                </select>
+                                <script>
+                                    // CART Change Personalized Message - ENTER
+                                    require([
+                                        'jquery',
+                                    ], function($) {
+                                        $("#option-<?php echo $_item->getId() . '-' . $pOp['option_id']; ?>").keypress(function(event) {
+                                            if (event.which == 13) {
+                                                event.preventDefault();
+                                                updateItemOpt(<?php echo $_item->getId(); ?>,<?php echo $_item->getProductId(); ?>);
+                                                return false;
+                                            }
+                                        })
+                                    });
+                                </script>
+                            </div>
+                        </dd>
+                    <?php } ?>					
+					<?php 
+						$i++;
+						if ($i < count($pOption)) {
+							$optionId .= ',';
+							$optionVal .= '#';
+						}
+					?>
+                <?php } ?>
+                <div>
+                    <?php if($countOption > 0) { ?>
+                        <a href="javascript:void(0)" onclick="updateItemOpt(<?php echo $_item->getId(); ?>,<?php echo $_item->getProductId(); ?>)">Update</a>
+                    <?php } else { ?>
+                        <a href="javascript:void(0)" onclick="updateItemOpt(<?php echo $_item->getId(); ?>,<?php echo $_item->getProductId(); ?>)">Save</a>
+                    <?php } ?>
+                    <a href="javascript:void(0)" id="custlink-<?php echo $_item->getId(); ?>" onclick="hideCustomize(<?php echo $_item->getId(); ?>)">Cancel</a>
+                <div>
+            </dl>
+        <?php } ?>
+        <input type="hidden" id="option-prod-<?php echo $_item->getId(); ?>" name="option-prod-<?php echo $_item->getId(); ?>" value="<?php echo $optionId; ?>" />
+        <input type="hidden" id="option-prod-<?php echo $_item->getId(); ?>-val" name="option-prod-<?php echo $_item->getId(); ?>" value="<?php echo $optionVal; ?>" />
+    </td>
+    <td class="col qty" data-th="<?php echo $block->escapeHtml(__('Qty')); ?>">
+        <div class="field qty">
+            <label class="label" for="cart-<?php /* @escapeNotVerified */ echo $_item->getId() ?>-qty">
+                <span><?php /* @escapeNotVerified */ echo __('Qty') ?></span>
+            </label>
+            <div class="control qty">
+                <input id="cart-<?php /* @escapeNotVerified */ echo $_item->getId() ?>-qty"
+                       name="cart[<?php /* @escapeNotVerified */ echo $_item->getId() ?>][qty]"
+                       data-cart-item-id="<?php /* @escapeNotVerified */ echo $_item->getSku() ?>"
+                       value="<?php /* @escapeNotVerified */ echo $block->getQty() ?>"
+                       type="number"
+                       size="4"
+                       title="<?php echo $block->escapeHtml(__('Qty')); ?>"
+                       class="input-text qty"
+                       maxlength="12"
+                       data-validate="{required:true,'validate-zero-custom':true}"
+                       data-role="cart-item-qty" onchange="optionQtySave(<?php echo $_item->getId(); ?>)"/>
+            </div>
+			<div id="card-qty-<?php echo $_item->getId(); ?>" style="display:none;">
+		<a href="javascript:void(0)" onclick="updateItemOpt(<?php echo $_item->getId(); ?>,<?php echo $_item->getProductId(); ?>,<?php echo $_item->getQty(); ?>)">Save</a>
+		<a href="javascript:void(0)" id="custlink-<?php echo $_item->getId(); ?>" onclick="cancelQtyCard(<?php echo $_item->getId().','.$_item->getQty(); ?>)">Cancel</a>
+		</div>
+        </div>
+    </td>
+    <td class="col price" data-th="<?php echo $block->escapeHtml(__('Price')); ?>">
+        <select id="attribute-<?php echo $_item->getId().'-'.$attribute->getId() ?>" name="attribute_<?php echo $_item->getId().'_'.$attribute->getId() ?>" onchange="optionSave(<?php echo $_item->getId();?>)">
+            <?php foreach($gOptions as $option) { ?>
+                <?php if($option['label'] == ' '){ continue; } ?>
+                <?php if(in_array($option['label'], $availGiftOption)){ ?>
+                    <option <?php if(number_format($_item->getProduct()->getPrice(),2) == number_format($option['label'],2)){ ?> selected="selected" <?php } ?> value="<?php echo $option['value']?>"><?php echo $currency.$option['label']; ?></option>
+                <?php } ?>
+                <?php
+                if(number_format($_item->getProduct()->getPrice(),2) == number_format($option['label'],2)){ $seleOpId = $option['value']; }
+                ?>
+            <?php } ?>
+        </select>
+        <div id="card-<?php echo $_item->getId(); ?>" style="display:none;">
+            <a href="javascript:void(0)" onclick="updateItemOpt(<?php echo $_item->getId(); ?>,<?php echo $_item->getProductId(); ?>)">Save</a>
+            <a href="javascript:void(0)" id="custlink-<?php echo $_item->getId(); ?>" onclick="cancelCard(<?php echo $_item->getId().','.$attribute->getId().','.$seleOpId; ?>)">Cancel</a>
+        </div>
+    </td>
+    <script>
+        // CART Change CARD Value - ENTER
+        require([
+            'jquery',
+        ], function($) {
+            $("#attribute-<?php echo $_item->getId().'-'.$attribute->getId() ?>").keypress(function(event) {
+                if (event.which == 13) {
+                    event.preventDefault();
+                    updateItemOpt(<?php echo $_item->getId(); ?>,<?php echo $_item->getProductId(); ?>);
+                    return false;
+                }
+            })
+        });
+    </script>
+    <input type="hidden" id="attribute-<?php echo $_item->getID(); ?>" name="attribute_<?php echo $_item->getID(); ?>" value="<?php echo $attribute->getID(); ?>" />
+    <?php /* if ($canApplyMsrp): ?>
+        <td class="col msrp" data-th="<?php echo $block->escapeHtml(__('Price')); ?>">
+                <span class="pricing msrp">
+                    <span class="msrp notice"><?php echo __('See price before order confirmation.'); ?></span>
+                    <?php $helpLinkId = 'cart-msrp-help-' . $_item->getId(); ?>
+                    <a href="javascript:void(0) class="action help map" id="<?php  echo($helpLinkId); ?>" data-mage-init='{"addToCart":{"helpLinkId": "#<?php  echo $helpLinkId;?>","productName": "<?php  echo $product->getName(); ?>","showAddToCart": false}}'>
+                        <span><?php echo __("What's this?"); ?></span>
+                    </a>
+                </span>
+        </td>
+    <?php else: ?>
+        <td class="col price" data-th="<?php echo $block->escapeHtml(__('Price')); ?>">
+            <?php echo $block->getUnitPriceHtml($_item); ?>
+        </td>
+    <?php endif; */ ?>
+
+    <td class="col subtotal" data-th="<?php echo $block->escapeHtml(__('Subtotal'));?>">
+        <?php if ($canApplyMsrp): ?>
+            <span class="cart msrp subtotal">--</span>
+        <?php else: ?>
+            <?php echo $block->getRowTotalHtml($_item); ?>
+        <?php endif; ?>
+    </td>
+
+    <td class="col subtotal" data-th="Subtotal">
+        <span class="discountprice-excluding-tax" data-label="Excl. Tax">
+        <?php
+        $item = $block->getItem();
+        $extraFeeAmount = \Magento\Framework\App\ObjectManager::getInstance()->get('Magento\Framework\App\Config\ScopeConfigInterface')->getValue('Extrafee/Extrafee/Extrafee_amount');
+        $productQty= $block->getQty();
+        $couponDiscountAmount = $item->getDiscountAmount();
+        if ($couponDiscountAmount > 0 )
+        {
+            $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+            foreach(explode(",",$item->getAppliedRuleIds()) as $ruleId)
+            {
+                $rule = $objectManager->create('Magento\SalesRule\Model\Rule')->load($ruleId);
+                $rulesInfo = $rule->getData();
+                $rulesDiscountAmount  = number_format($rulesInfo['discount_amount'],2);
+                $showDiscount =0;
+                if ( ($rulesInfo['simple_action'] === "by_fixed") && ($rulesDiscountAmount === $extraFeeAmount)) {
+                    $showDiscount =1;
+                } else {
+                    $showDiscount =0;
+                }
+            }
+        }
+        $item = $block->getItem();
+        $deductionAmount = number_format($item->getDiscountAmount(),2);
+        $amountSign = ($deductionAmount > 0 ? "-" : "");
+        $totalExtraFee = number_format($productQty* $extraFeeAmount,2);
+        ?>
+        <span class="cart-price">
+					 <span class="price"><?php echo $currency .$totalExtraFee; ?></span> <br/>
+            <?php if (($deductionAmount > 0) && ( $showDiscount===1 ) ) { ?>
+				<span class="price coupon_discount_amount"><?php echo $amountSign.$currency.($productQty* $rulesDiscountAmount  ); ?></span>
+            <?php } ?>
+               </span>
+        </span>
+    </td>
+
+    <td class="item-actions" >
+        <div class="actions-toolbar">
+            <?php /* @escapeNotVerified */ echo $block->getActions($_item) ?>
+        </div>
+    </td>
+</tr>
+</tbody>

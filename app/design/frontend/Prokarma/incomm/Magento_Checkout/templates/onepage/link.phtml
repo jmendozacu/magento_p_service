@@ -1,0 +1,56 @@
+<?php
+/**
+ * Copyright © 2013-2017 Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+// @codingStandardsIgnoreFile
+?>
+<?php
+    $adminConfHelper = $this->helper('Prokarma\Adminconf\Helper\Data');
+    $flag = 1;
+    $threshold = $adminConfHelper->getThresholdConfig('threshold/value');
+    $thresholdQuantity = $adminConfHelper->getThresholdConfig('threshold/quantity');
+    $thresholdMessage = $adminConfHelper->getThresholdConfig('threshold/message');
+    $thresholdTitle = $adminConfHelper->getThresholdConfig('threshold/title') ;
+	$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+	$cart = $objectManager->get('\Magento\Checkout\Model\Cart'); 
+	$grandTotal = $cart->getQuote()->getGrandTotal();
+	$subTotal = $cart->getQuote()->getSubtotal();
+    $totalQuantity = $cart->getQuote()->getItemsQty();
+	if ($grandTotal > $threshold) {
+		$flag = 0; 
+	}
+?>
+<?php if ($block->isPossibleOnepageCheckout()):?>
+    <button type="button"
+            data-role="proceed-to-checkout"
+            title="<?php /* @escapeNotVerified */ echo __('Proceed to Checkout') ?>"
+            data-mage-init='{"Magento_Checkout/js/proceed-to-checkout":{"checkoutUrl":"<?php /* @escapeNotVerified */ echo $block->getCheckoutUrl(); ?>"}}'
+            class="action primary checkout<?php echo($block->isDisabled()) ? ' disabled' : ''; ?>"
+            <?php if ($block->isDisabled()):?>disabled="disabled"<?php endif; ?>>
+        <span><?php /* @escapeNotVerified */ echo __('Proceed to Checkout') ?></span>
+    </button>
+<?php endif?>
+<?php if(empty($flag)): ?>
+	<script type="text/javascript">
+        require([
+        'jquery',
+        'jquery/ui',
+        'Magento_Ui/js/modal/modal'
+        ], function($){
+            $(".action.primary.checkout").click(function(event){
+                event.preventDefault();
+                $('<div />').html('<?php echo $thresholdMessage; ?>')
+                .modal({
+                    title: '<?php echo $thresholdTitle; ?>',
+                    autoOpen: true,
+                    closed: function () {
+                        // on close
+                    },
+                     buttons: []
+                 });
+            });
+        });
+	</script>
+<?php endif; ?>

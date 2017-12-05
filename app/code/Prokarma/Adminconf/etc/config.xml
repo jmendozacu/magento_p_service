@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <adminconf>
+            <threshold>
+                <title>Bulk Order Identified</title>
+                <quantity>5</quantity>
+                <value>100</value>
+                <message>
+                    <![CDATA[<p>Your order volume is more than limited, please contact our bulk order process team via email bulkorders@incomm.com or call us on 1800-571-1351<br /><br /><br /></p>]]>
+                </message>
+            </threshold>
+        </adminconf>
+    </default>
+</config>

@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="incomm" translate="label" sortOrder="150">
+            <label>Incomm</label>
+        </tab>
+        <section id="adminconf" translate="label" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Configuration</label>
+            <tab>incomm</tab>
+            <resource>Prokarma_Adminconf::incomm_configuration</resource>
+            <group id="threshold" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Threshold Configuration</label>
+                <field id="title" translate="label" type="text" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1"> 
+                    <label>Threshold Title</label>
+                </field>
+                <field id="quantity" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Threshold Quantity</label>
+                </field>
+                <field id="value" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Threshold Value</label>
+                </field>
+                <field id="message" translate="label" type="textarea" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Threshold Message</label>
+                    <comment>This text will display on the frontend.</comment>
+                </field>
+            </group>
+            <group id="continue_redirect" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Continue Shopping Redirection</label>
+                <field id="redirectlink" translate="label" type="text" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Redirect Link</label>
+                    <comment>Please provide link in the format eg. gift-card.html</comment>
+                </field>
+            </group>
+            <group id="shipping_message" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Shipping Message</label>
+                <field id="shippingmessage" translate="label" type="textarea" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Shipping Message</label>
+                </field>
+            </group>
+            <group id="personal_message" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Personal Message Color Selection</label>
+                <field id="color" translate="label" type="text" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Color Code</label>
+                    <comment>Please provide color code for eg. #030256 and personal message text will appear in that code.</comment>
+                </field>
+            </group>
+            <group id="shipping_restriction" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Standard Shipping Restriction</label>
+                <field id="amount" translate="label" type="text" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Restriction Amount</label>
+                    <comment>Please provde card total amount for which standard shipping restricted.</comment>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

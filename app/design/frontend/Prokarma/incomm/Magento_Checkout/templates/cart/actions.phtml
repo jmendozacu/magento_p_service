@@ -1,0 +1,70 @@
+<?php
+$adminConfHelper = $this->helper('Prokarma\Adminconf\Helper\Data');
+$flagThreshold = 1;
+$threshold = $adminConfHelper->getThresholdConfig('threshold/value');
+$thresholdQuantity = $adminConfHelper->getThresholdConfig('threshold/quantity');
+$thresholdMessage = $adminConfHelper->getThresholdConfig('threshold/message');
+$thresholdTitle = $adminConfHelper->getThresholdConfig('threshold/title');
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$cart = $objectManager->get('\Magento\Checkout\Model\Cart');
+$grandTotal = $block->getQuote()->getGrandTotal();
+$subTotal = $block->getQuote()->getSubtotal();
+$totalQuantity = $cart->getQuote()->getItemsQty();
+if ($grandTotal >= $threshold && $totalQuantity >= $thresholdQuantity ) {
+    $flagThreshold = 0;
+}
+$continueShoppingUrl = $adminConfHelper->getContinueShoppingLink("continue_redirect/redirectlink"); //Continue button link from admin configuration
+if (empty($continueShoppingUrl)) {
+    $continueShoppingUrl = $block->getCheckoutUrl();
+}
+?>
+<?php if ($block->getItemsCount() > 0): ?>
+    <div class="cart-actions">
+        <div class="left">
+            <a class="action continue"
+               href="<?php  echo $block->escapeUrl($continueShoppingUrl); ?>"
+               title="<?php echo $block->escapeHtml(__('Continue Shopping')) ?>">
+                <span><?php echo __('Continue Shopping') ?></span>
+            </a>
+        </div>
+        <div class="right">
+            <a class="action primary checkout"
+               href="<?php echo empty($flagThreshold) ? '#' : $block->escapeUrl($block->getCheckoutUrl()); ?>"
+               title="<?php echo $block->escapeHtml(__('Checkout')) ?>">
+                <span><?php echo __('Checkout') ?></span>
+            </a>
+            <?php
+            // Login link removed when customer already login
+            if ($block->getQuote()->getCustomerId() == 0) :
+                ?>
+                <br/><br/><a href="<?php  echo $block->getUrl('customer/account/login'); ?>">Login in for fast checkout</a>
+                <?php
+            endif;
+            ?>
+        </div>
+    </div>
+    <?php
+endif; ?>
+<?php if (empty($flagThreshold)): ?>
+    <script type="text/javascript">
+        require([
+            'jquery',
+            'jquery/ui',
+            'Magento_Ui/js/modal/modal'
+        ], function ($) {
+            $(".action.primary.checkout").click(function(event){
+                event.preventDefault();
+                $('<div />').html('<?php echo $thresholdMessage; ?>')
+                    .modal({
+                        title: '<?php echo $thresholdTitle; ?>',
+                        autoOpen: true,
+                        closed: function () {
+                            // on close
+                        },
+                        buttons: []
+                    });
+            });
+        });
+    </script>
+    <?php
+endif;

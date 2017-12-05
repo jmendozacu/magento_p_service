@@ -1,0 +1,181 @@
+<?php
+/**
+ * Copyright © 2013-2017 Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+?>
+<?php //echo $block->getLayout()->createBlock('Magento\Cms\Block\Block')->setBlockId('footer-nav-sec1')->toHtml();?>
+
+<?php
+$adminConfHelper = $this->helper('Prokarma\Adminconf\Helper\Data'); //load color from admin
+
+if ($this->getRequest()->getFullActionName() == 'catalog_category_view') {
+    echo $block->getLayout()->createBlock('Magento\Cms\Block\Block')->setBlockId('category-bulk-order')->toHtml();
+}
+//Conditional static blocks for Footer Site-Locator
+if ($this->getRequest()->getFullActionName() == 'cms_index_index') {
+    echo $block->getLayout()->createBlock('Magento\Cms\Block\Block')->setBlockId('site-locator')->toHtml();
+} elseif($this->getRequest()->getFullActionName() == 'checkout_cart_index' || $this->getRequest()->getFullActionName() == 'checkout_index_index'  ) {
+    echo $block->getLayout()->createBlock('Magento\Cms\Block\Block')->setBlockId('store-locator-cart')->toHtml();
+} else {
+    echo $block->getLayout()->createBlock('Magento\Cms\Block\Block')->setBlockId('store-locator-category')->toHtml();
+}
+?>
+<div id="iNavNGI_FooterMain" class="us-en iNNewFoot iNavCenter">
+<div id="iNavNGI_FooterWrap">
+<div id="iNavNGI_FooterCont">
+		<div id="iNavNGI_Footer">
+			<?php //echo $block->getLayout()->createBlock('Magento\Cms\Block\Block')->setBlockId('footer_main_navigation')->toHtml();?>
+		</div>
+
+    <div id="copyrightInfo">
+        <?php echo $block->getLayout()->createBlock('Magento\Cms\Block\Block')->setBlockId('footer_main_navigation')->toHtml();?>
+        <?php echo $block->getLayout()->createBlock('Magento\Cms\Block\Block')->setBlockId('footer_links_you_may_like')->toHtml();?>
+        <?php echo $block->getLayout()->createBlock('Magento\Cms\Block\Block')->setBlockId('footer_supplier_management')->toHtml();?>
+        <p class="iNLegal"><?php echo $block->getLayout()->createBlock('Magento\Cms\Block\Block')->setBlockId('footer_agree_text')->toHtml();?></p>
+        <span><?php /* @escapeNotVerified */ echo $block->getCopyright() ?></span>
+    </div>
+
+</div> <!-- iNavNGI_FooterCont -->
+		<div id="iNavObjects"></div>
+	
+</div>
+</div>
+<script type="text/javascript">
+    require([ 'jquery', 'jquery/ui'], function($) {
+        $(document).ready(function() {
+            // Fix for absolute position top header
+            var margin = $(".header.content").offset().left;
+            var total = parseInt(margin) + 40 + "px";
+            //load color from admin
+            $(".page-header .panel.wrapper").css("right", total);
+            $(".page-header .panel.wrapper").css("display", "block");
+
+            // personal message as user types
+            // Changed this code to use select box instead of text field
+            $("#product-options-wrapper .input-text.product-custom-option").keyup(function () {
+                var enteredMessage = $("#product-options-wrapper .input-text.product-custom-option").val();
+                if (enteredMessage !== null && typeof enteredMessage !== 'undefined' && enteredMessage != '') {
+                    changeMessage(enteredMessage);
+                }
+            });
+            $("#product-options-wrapper .admin__control-select.product-custom-option").change(function () {
+                var enteredMessage =
+                    $("#product-options-wrapper .admin__control-select.product-custom-option option:selected").text();
+                if (enteredMessage !== null && typeof enteredMessage !== 'undefined' && enteredMessage != '') {
+                    changeMessage(enteredMessage);
+                }
+            });
+        });
+        $(window).resize(function () {
+            // Fix for absolute position top header
+            var margin = $(".header.content").offset().left;
+            var total = parseInt(margin) + 40 + "px";
+            $(".page-header .panel.wrapper").css("right", total);
+            $(".page-header .panel.wrapper").css("display", "block");
+            setMessageColors();
+        });
+
+        // Minicart Sticky
+        /*
+        var valX = $(window).scrollTop();
+        var miniCart = $(".block.block-minicart");
+        function syncScroll(target){
+            var valY = $(window).scrollTop();
+            var difYX = valY - valX;
+            var targetX = $(target).scrollTop();
+            if(valY > valX){
+                $(target).scrollTop(difYX);
+            }
+            if(difYX <= 0){
+                $(target).scrollTop(-20);
+            }
+        }
+        $(window).scroll(function(){
+            if ( $(window).scrollTop() > 136 ) {
+                miniCart.css("position", "fixed");
+                miniCart.css("top", "-9px");
+                miniCart.css("right", "32px");
+                miniCart.css("overflow", "scroll");
+                miniCart.css("height", "calc(100% - 100px)");
+                syncScroll(miniCart);
+            } else {
+                miniCart.css("position", "absolute");
+                miniCart.css("top", "inherit");
+                miniCart.css("right", "-15px");
+                miniCart.css("overflow", "auto");
+                miniCart.css("height", "auto");
+            }
+        });*/
+
+        function changeMessage(enteredMessage) {
+            if (enteredMessage != "-- Please Select --") {
+                $(".personal_message").text(enteredMessage);
+            } else {
+                $(".personal_message").text("");
+            }
+            setMessageColors();
+        }
+        function luminosity(hexColor) {
+            var r = parseInt(hexColor.substr(1,2),16);
+            var g = parseInt(hexColor.substr(3,2),16);
+            var b = parseInt(hexColor.substr(4,2),16);
+            var yiq = ((r*299)+(g*587)+(b*114))/1000;
+
+            return (yiq < 92);
+        }
+        function setMessageColors() {
+            //var color = '<?php echo $adminConfHelper->getPersonalMessageColor('personal_message/color'); ?>';
+            // fotorama personal message positioning
+            var thumbCard = $(".fotorama__img");
+            var newTopCss = thumbCard.height() - 10;
+            $(".personal_message").css("top", newTopCss);
+
+            // Vibrant
+            /* Vibrant #7a4426, Muted #7b9eae, DarkVibrant #348945, DarkMuted #141414, LightVibrant #f3ccb4; */
+            var img = document.createElement('img');
+            var imgSrc = thumbCard.attr('src');
+            if (imgSrc !== null && typeof imgSrc !== 'undefined') {
+                img.setAttribute('src', imgSrc);
+                img.addEventListener('load', function () {
+                    var vibrant = new Vibrant(img);
+                    var swatches = vibrant.swatches();
+                    var darkColor = true;
+                    for (var swatch in swatches) {
+                        if (swatches.hasOwnProperty(swatch) && swatches[swatch]) {
+                            var hexColor = swatches[swatch].getHex();
+                            if (swatch == 'DarkMuted') {
+                                var imgBrightness = luminosity(hexColor);
+                                if (imgBrightness == true) {
+                                    darkColor = false;
+                                }
+                                console.log('darkColor: ' + darkColor);
+                            }
+                            if (swatch == 'LightVibrant') {
+                                var lightVibrantColor = hexColor;
+                                var titleTextColor = swatches[swatch].getTitleTextColor();
+                                var bodyTextColor = swatches[swatch].getBodyTextColor();
+                                //console.log('lightVibrantColor: ' + lightVibrantColor);
+                                //console.log('titleTextColor: ' + titleTextColor);
+                                //console.log('bodyTextColor: ' + bodyTextColor);
+                            }
+                            if (swatch == 'Vibrant') {
+                                var vibrantColor = hexColor;
+                            }
+                        }
+                    }
+                    if (darkColor) {
+                        $('.personal_message').css('color', lightVibrantColor);
+                        $('.personal_message').css('textShadow', vibrantColor + ' -1px 0 0');
+                    } else {
+                        $('.personal_message').css('color', lightVibrantColor);
+                        $('.personal_message').css('textShadow', vibrantColor + ' -1px 0 0');
+                    }
+                });
+            }
+        }
+    });
+</script>
+
+
+<?php /* @escapeNotVerified */ echo $block->getMiscellaneousHtml();

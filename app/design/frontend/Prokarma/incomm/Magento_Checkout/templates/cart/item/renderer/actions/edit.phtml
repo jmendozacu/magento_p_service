@@ -1,0 +1,105 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+// @codingStandardsIgnoreFile
+
+/** @var $block \Magento\Checkout\Block\Cart\Item\Renderer\Actions\Remove */
+?>
+<a class="no-display" href="javascript:void(0);" title="<?= $block->escapeHtml(__('Update item')) ?>"
+   class="action action-edit"
+   onclick="updateItemOpt(<?php echo $block->getItem()->getId(); ?>,<?php echo $block->getItem()->getProductId(); ?>)"
+>
+    <span>
+        <?php echo __('Update item') ?>
+    </span>
+</a>
+<script type="text/javascript"> 
+    require(['jquery']);
+	function optionQtySave(id)
+    {
+		jQuery('#card-qty-' + id).show();
+	}
+    function cancelQtyCard(id,qty)
+    {
+        jQuery('#cart-' + id + '-qty').val(qty);
+        jQuery('#card-qty-' + id).hide();
+		jQuery('#cart-' + id + '-qty').removeClass("mage-error");
+		if (typeof(jQuery('#cart-' + id + '-qty-error')) !== "undefined") {
+			jQuery('#cart-' + id + '-qty-error').hide();	
+		}
+    }
+    function optionSave(id)
+    {
+        jQuery('#card-' + id).show();
+    }
+    function cancelCard(id,aid,selval) {
+        jQuery('#attribute-' + id + '-' + aid).val(selval);
+        jQuery('#card-' + id).hide();
+    }
+    function showCustomize(id)
+    {
+        jQuery('#custlink-' + id).hide();
+        jQuery('#custdiv-' + id).show();
+        jQuery('#item-options-' + id).hide();
+    }
+    function hideCustomize(id)
+    {
+        jQuery('#custlink-' + id).show();
+        jQuery('#custdiv-' + id).hide();
+        jQuery('#item-options-' + id).show();
+    }
+    function updateOptVal(id)
+    {
+        var strVale = jQuery('#option-prod-' + id).val();
+        var arr = strVale.split(',');
+        var optionalValues = '';
+        for (var i=0; i < arr.length; i++) {
+            if (typeof(jQuery('#option-' + id + '-' + arr[i]).val()) !== "undefined") {
+                optionalValues = optionalValues + jQuery('#option-' + id + '-' + arr[i]).val();
+            }
+			if (i+1 < arr.length) {
+				optionalValues = optionalValues + '#';
+			}	
+        }
+        jQuery('#option-prod-' + id + '-val').val(optionalValues);
+    }
+ 	function updateItemOpt(id, pid, oldQty=0)
+    {
+		var aid = jQuery('#attribute-' + id).val();
+		var aidValue = jQuery('#attribute-' + id + '-'+ aid).val();
+		var optId = jQuery('#option-prod-' + id).val();
+		var optVal = jQuery('#option-prod-' + id + '-val').val();
+		var qty = jQuery('#cart-' + id + '-qty').val();
+		if (qty == 0) {
+			if(!confirm('Updating the quantity with \'0\' will remove this item from the cart. Do you want to proceed?')){
+				cancelQtyCard(id, oldQty);
+				return false;
+			}	
+		}	
+		jQuery.ajax({
+			method: "POST",
+			url: window.checkout.baseUrl + "checkout/cart/updateItemOptions/",
+			data: {
+			    id: id,
+                product: pid,
+                qty: qty,
+                s_attr: aid,
+                s_attr_val:aidValue,
+                opt_id:optId, opt_val:optVal,
+                related_product:''
+			},
+			beforeSend: function(){
+				jQuery('body').trigger('processStart');
+			},
+			complete: function(){
+				jQuery('body').trigger('processStop');
+			},
+			success: function(result) {
+				window.location.href = window.checkout.baseUrl + 'checkout/cart/';
+			}
+		});
+	}
+</script>

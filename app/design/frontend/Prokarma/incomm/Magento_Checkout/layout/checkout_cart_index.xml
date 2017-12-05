@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © 2013-2017 Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<page layout="1column" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="breadcrumbs">
+            <action method="addCrumb">
+                <argument name="crumbName" xsi:type="string">Home</argument>
+                <argument name="crumbInfo" xsi:type="array">
+                    <item name="title" xsi:type="string">Home</item>
+                    <item name="label" xsi:type="string">Home</item>
+                    <item name="link" xsi:type="string">{{baseUrl}}</item>
+                </argument>
+            </action>
+            <action method="addCrumb">
+                <argument name="crumbName" xsi:type="string">Shopping Cart</argument>
+                <argument name="crumbInfo" xsi:type="array">
+                    <item name="title" xsi:type="string">Shopping Cart</item>
+                    <item name="label" xsi:type="string">Shopping Cart</item>
+                    <item name="link" xsi:type="string">{{baseUrl}}checkout/cart</item>
+                </argument>
+            </action>
+        </referenceBlock>
+        <referenceContainer name="checkout.cart.container">
+            <container name="cart.discount" label="Cart Discount Container" htmlTag="div" htmlClass="cart-discount" after="-" />
+            <block class="Magento\Checkout\Block\Cart" name="cart-actions" after="-" template="Magento_Checkout::cart/actions.phtml" />
+        </referenceContainer>
+        <move element="cart.summary" destination="content" after="checkout.cart.container" />
+        <move element="checkout.cart.crosssell" destination="checkout.cart.container" after="-" />
+        <move element="checkout.cart.coupon" destination="content" before="cart.summary"/>
+        <move element="cart-actions" destination="content" after="cart.summary"/>
+		<referenceBlock name="checkout.cart.methods.bottom" display="false" />        
+    </body>
+</page>
