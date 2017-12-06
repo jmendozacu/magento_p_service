@@ -48,8 +48,8 @@ return array (
       array (
         'host' => 'localhost',
         'dbname' => 'amex',
-        'username' => 'root',
-        'password' => 'root',
+        'username' => 'username-root',
+        'password' => 'password-root',
         'active' => '1',
       ),
     ),
