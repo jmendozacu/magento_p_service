@@ -1920,7 +1920,11 @@ thead {
     text-transform: uppercase;
 }
 #shopping-cart-table tbody tr td {
-    vertical-align: middle !important;
+    vertical-align: top;
+    height: 77px;
+}
+.checkout-cart-index td.cart.item {
+    line-height: 85px;
 }
 .cart.table-wrapper .item .col.item{
     padding:0;
@@ -1929,7 +1933,49 @@ thead {
     padding-bottom: 0 !important;
 }
 .cart.table-wrapper .product-item-photo{
-    max-width: 65px !important;
+    max-width:  135px !important;
+    max-height: 135px !important;
+}
+.cart.table-wrapper .product-item-photo {
+    display: table;
+}
+.checkout-cart-index table {
+    border-collapse: collapse;
+}
+.cart.table-wrapper .cart > .item {
+    border-bottom: 1px solid #cccccc;
+}
+.checkout-cart-index select {
+    height: 42px !important;
+    padding: 2px 0 0 10px;
+    position: relative;
+    top: 10px;
+}
+.checkout-cart-index .field.qty {
+    min-width: 82px;
+}
+.checkout-cart-index .cart.table-wrapper .col.qty {
+    padding: 17px 11px 10px;
+}
+.checkout-cart-index .col.price div {
+    position: relative;
+    top: 10px;
+}
+.col.qty div.field.qty div:nth-child(3) {
+    line-height: initial;
+    position: relative;
+    top: -13px;
+}
+.checkout-cart-index td.col.qty {
+    line-height: 68px;
+}
+.checkout-cart-index input.input-text.qty {
+    width: 65px !important;
+    height: 42px !important;
+}
+.checkout-cart-index td.col.subtotal {
+    position: relative;
+    top: 13px;
 }
 .product-item-pricing {
     top: 50%;
@@ -1970,6 +2016,10 @@ thead tr th {
 .checkout-cart-index  .item-options
 {
     color: #6f6f6f !important;
+    border-spacing: 2px;
+}
+.checkout-cart-index  .item-options dt, .checkout-cart-index  .item-options dd {
+    padding-top: 32px;
 }
 .minicart-items .product-item-details .details-qty
 {
@@ -2329,6 +2379,8 @@ thead tr th {
 .cart.table-wrapper .actions-toolbar > .action-delete::before {
     content: '\e616' !important;
     font-size: 12px !important;
+    position: relative;
+    top: 25px;
 }
 .cart-actions .right{
     text-align:right;
@@ -2347,6 +2399,7 @@ thead tr th {
 #shopping-cart-table tbody tr td.custom {
     padding-left: 11px;
     padding-right: 11px;
+    padding-top: 30px;
 }
 .product-item-name > a{
     color: #6f6f6f !important;
